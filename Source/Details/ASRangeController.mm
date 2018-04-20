@@ -89,9 +89,9 @@ static UIApplicationState __ApplicationState = UIApplicationStateActive;
   [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 #endif
   
-  if (ASDisplayNode.shouldShowRangeDebugOverlay) {
-    [self addRangeControllerToRangeDebugOverlay];
-  }
+//  if (ASDisplayNode.shouldShowRangeDebugOverlay) {
+//    [self addRangeControllerToRangeDebugOverlay];
+//  }
   
   return self;
 }
@@ -396,24 +396,24 @@ static UIApplicationState __ApplicationState = UIApplicationStateActive;
 
   [self _setVisibleNodes:newVisibleNodes];
   
-  // TODO: This code is for debugging only, but would be great to clean up with a delegate method implementation.
-  if (ASDisplayNode.shouldShowRangeDebugOverlay) {
-    ASScrollDirection scrollableDirections = ASScrollDirectionUp | ASScrollDirectionDown;
-    if ([_dataSource isKindOfClass:NSClassFromString(@"ASCollectionView")]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-      scrollableDirections = (ASScrollDirection)[_dataSource performSelector:@selector(scrollableDirections)];
-#pragma clang diagnostic pop
-    }
-    
-    [self updateRangeController:self
-       withScrollableDirections:scrollableDirections
-                scrollDirection:scrollDirection
-                      rangeMode:rangeMode
-        displayTuningParameters:parametersDisplay
-        preloadTuningParameters:parametersPreload
-                 interfaceState:selfInterfaceState];
-  }
+//  // TODO: This code is for debugging only, but would be great to clean up with a delegate method implementation.
+//  if (ASDisplayNode.shouldShowRangeDebugOverlay) {
+//    ASScrollDirection scrollableDirections = ASScrollDirectionUp | ASScrollDirectionDown;
+//    if ([_dataSource isKindOfClass:NSClassFromString(@"ASCollectionView")]) {
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wundeclared-selector"
+//      scrollableDirections = (ASScrollDirection)[_dataSource performSelector:@selector(scrollableDirections)];
+//#pragma clang diagnostic pop
+//    }
+//
+//    [self updateRangeController:self
+//       withScrollableDirections:scrollableDirections
+//                scrollDirection:scrollDirection
+//                      rangeMode:rangeMode
+//        displayTuningParameters:parametersDisplay
+//        preloadTuningParameters:parametersPreload
+//                 interfaceState:selfInterfaceState];
+//  }
   
   _rangeIsValid = YES;
   

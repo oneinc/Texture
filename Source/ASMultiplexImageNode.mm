@@ -133,16 +133,6 @@ typedef void(^ASMultiplexImageLoadCompletionBlock)(UIImage *image, id imageIdent
  */
 - (void)_fetchImageWithIdentifierFromCache:(id)imageIdentifier URL:(NSURL *)imageURL completion:(void (^)(UIImage *image))completionBlock;
 
-#if TARGET_OS_IOS
-/**
-  @abstract Loads the image corresponding to the given assetURL from the device's Assets Library.
-  @param imageIdentifier The identifier for the image to be loaded. May not be nil.
-  @param assetURL The assets-library URL (e.g., "assets-library://identifier") of the image to load, from ALAsset. May not be nil.
-  @param completionBlock The block to be performed when the image has been loaded, if possible. May not be nil.
- */
-- (void)_loadALAssetWithIdentifier:(id)imageIdentifier URL:(NSURL *)assetURL completion:(void (^)(UIImage *image, NSError *error))completionBlock;
-#endif
-
 /**
   @abstract Loads the image corresponding to the given image request from the Photos framework.
   @param imageIdentifier The identifier for the image to be loaded. May not be nil.
@@ -619,30 +609,14 @@ typedef void(^ASMultiplexImageLoadCompletionBlock)(UIImage *image, id imageIdent
     finishedLoadingBlock(nil, nil, [NSError errorWithDomain:ASMultiplexImageNodeErrorDomain code:ASMultiplexImageNodeErrorCodeNoSourceForImage userInfo:nil]);
     return;
   }
-
-#if TARGET_OS_IOS
-  // If it's an assets-library URL, we need to fetch it from the assets library.
-  if ([[nextImageURL scheme] isEqualToString:kAssetsLibraryURLScheme]) {
-    // Load the asset.
-    [self _loadALAssetWithIdentifier:nextImageIdentifier URL:nextImageURL completion:^(UIImage *downloadedImage, NSError *error) {
-      as_log_verbose(ASImageLoadingLog(), "Acquired image from assets library for %@ %@", weakSelf, nextImageIdentifier);
-      finishedLoadingBlock(downloadedImage, nextImageIdentifier, error);
+  
+  if (ASPhotosFrameworkImageRequest *request = [ASPhotosFrameworkImageRequest requestWithURL:nextImageURL]) {
+    [self _loadPHAssetWithRequest:request identifier:nextImageIdentifier completion:^(UIImage *image, NSError *error) {
+      as_log_verbose(ASImageLoadingLog(), "Acquired image from Photos for %@ %@", weakSelf, nextImageIdentifier);
+      finishedLoadingBlock(image, nextImageIdentifier, error);
     }];
     
     return;
-  }
-#endif
-  
-  if (AS_AVAILABLE_IOS_TVOS(9, 10)) {
-    // Likewise, if it's a Photos asset, we need to fetch it accordingly.
-    if (ASPhotosFrameworkImageRequest *request = [ASPhotosFrameworkImageRequest requestWithURL:nextImageURL]) {
-      [self _loadPHAssetWithRequest:request identifier:nextImageIdentifier completion:^(UIImage *image, NSError *error) {
-        as_log_verbose(ASImageLoadingLog(), "Acquired image from Photos for %@ %@", weakSelf, nextImageIdentifier);
-        finishedLoadingBlock(image, nextImageIdentifier, error);
-      }];
-      
-      return;
-    }
   }
   
   // Otherwise, it's a web URL that we can download.
@@ -677,31 +651,7 @@ typedef void(^ASMultiplexImageLoadCompletionBlock)(UIImage *image, id imageIdent
     }];
   }];
 }
-#if TARGET_OS_IOS
-- (void)_loadALAssetWithIdentifier:(id)imageIdentifier URL:(NSURL *)assetURL completion:(void (^)(UIImage *image, NSError *error))completionBlock
-{
-  ASDisplayNodeAssertNotNil(imageIdentifier, @"imageIdentifier is required");
-  ASDisplayNodeAssertNotNil(assetURL, @"assetURL is required");
-  ASDisplayNodeAssertNotNil(completionBlock, @"completionBlock is required");
-  
-  // ALAssetsLibrary was replaced in iOS 8 and deprecated in iOS 9.
-  // We'll drop support very soon.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  ALAssetsLibrary *assetLibrary = [[ALAssetsLibrary alloc] init];
 
-  [assetLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-    ALAssetRepresentation *representation = [asset defaultRepresentation];
-    CGImageRef coreGraphicsImage = [representation fullScreenImage];
-
-    UIImage *downloadedImage = (coreGraphicsImage ? [UIImage imageWithCGImage:coreGraphicsImage] : nil);
-    completionBlock(downloadedImage, nil);
-  } failureBlock:^(NSError *error) {
-    completionBlock(nil, error);
-  }];
-#pragma clang diagnostic pop
-}
-#endif
 - (void)_loadPHAssetWithRequest:(ASPhotosFrameworkImageRequest *)request identifier:(id)imageIdentifier completion:(void (^)(UIImage *image, NSError *error))completionBlock
 {
   ASDisplayNodeAssertNotNil(imageIdentifier, @"imageIdentifier is required");
