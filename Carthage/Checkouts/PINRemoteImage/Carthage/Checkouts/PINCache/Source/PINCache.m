@@ -208,10 +208,10 @@ static NSString * const PINCacheSharedName = @"PINCacheShared";
     PINOperationGroup *group = [PINOperationGroup asyncOperationGroupWithQueue:_operationQueue];
     
     [group addOperation:^{
-        [_memoryCache trimToDate:date];
+        [self->_memoryCache trimToDate:date]; // Weakify
     }];
     [group addOperation:^{
-        [_diskCache trimToDate:date];
+        [self->_diskCache trimToDate:date]; // Weakify
     }];
   
     if (block) {

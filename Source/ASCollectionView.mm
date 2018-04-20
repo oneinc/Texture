@@ -962,7 +962,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
   ASDisplayNodeAssertMainThread();
   if (sections.count == 0) { return; }
   [self performBatchUpdates:^{
-    [_changeSet insertSections:sections animationOptions:kASCollectionViewAnimationNone];
+    [self->_changeSet insertSections:sections animationOptions:kASCollectionViewAnimationNone]; // Weakify
   } completion:nil];
 }
 
@@ -971,7 +971,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
   ASDisplayNodeAssertMainThread();
   if (sections.count == 0) { return; }
   [self performBatchUpdates:^{
-    [_changeSet deleteSections:sections animationOptions:kASCollectionViewAnimationNone];
+    [self->_changeSet deleteSections:sections animationOptions:kASCollectionViewAnimationNone]; // Weakify
   } completion:nil];
 }
 
@@ -980,7 +980,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
   ASDisplayNodeAssertMainThread();
   if (sections.count == 0) { return; }
   [self performBatchUpdates:^{
-    [_changeSet reloadSections:sections animationOptions:kASCollectionViewAnimationNone];
+    [self->_changeSet reloadSections:sections animationOptions:kASCollectionViewAnimationNone]; // Weakify
   } completion:nil];
 }
 
@@ -988,7 +988,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
 {
   ASDisplayNodeAssertMainThread();
   [self performBatchUpdates:^{
-    [_changeSet moveSection:section toSection:newSection animationOptions:kASCollectionViewAnimationNone];
+    [self->_changeSet moveSection:section toSection:newSection animationOptions:kASCollectionViewAnimationNone]; // Weakify
   } completion:nil];
 }
 
@@ -1003,7 +1003,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
   ASDisplayNodeAssertMainThread();
   if (indexPaths.count == 0) { return; }
   [self performBatchUpdates:^{
-    [_changeSet insertItems:indexPaths animationOptions:kASCollectionViewAnimationNone];
+    [self->_changeSet insertItems:indexPaths animationOptions:kASCollectionViewAnimationNone]; // Weakify
   } completion:nil];
 }
 
@@ -1012,7 +1012,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
   ASDisplayNodeAssertMainThread();
   if (indexPaths.count == 0) { return; }
   [self performBatchUpdates:^{
-    [_changeSet deleteItems:indexPaths animationOptions:kASCollectionViewAnimationNone];
+    [self->_changeSet deleteItems:indexPaths animationOptions:kASCollectionViewAnimationNone]; // Weakify
   } completion:nil];
 }
 
@@ -1021,7 +1021,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
   ASDisplayNodeAssertMainThread();
   if (indexPaths.count == 0) { return; }
   [self performBatchUpdates:^{
-    [_changeSet reloadItems:indexPaths animationOptions:kASCollectionViewAnimationNone];
+    [self->_changeSet reloadItems:indexPaths animationOptions:kASCollectionViewAnimationNone]; // Weakify
   } completion:nil];
 }
 
@@ -1029,7 +1029,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
 {
   ASDisplayNodeAssertMainThread();
   [self performBatchUpdates:^{
-    [_changeSet moveItemAtIndexPath:indexPath toIndexPath:newIndexPath animationOptions:kASCollectionViewAnimationNone];
+    [self->_changeSet moveItemAtIndexPath:indexPath toIndexPath:newIndexPath animationOptions:kASCollectionViewAnimationNone]; // Weakify
   } completion:nil];
 }
 
@@ -1828,14 +1828,14 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
   if (_asyncDelegateFlags.collectionNodeWillBeginBatchFetch) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       GET_COLLECTIONNODE_OR_RETURN(collectionNode, (void)0);
-      as_log_debug(ASCollectionLog(), "Beginning batch fetch for %@ with context %@", collectionNode, _batchContext);
-      [_asyncDelegate collectionNode:collectionNode willBeginBatchFetchWithContext:_batchContext];
+      as_log_debug(ASCollectionLog(), "Beginning batch fetch for %@ with context %@", collectionNode, self->_batchContext); // Weakify
+      [self->_asyncDelegate collectionNode:collectionNode willBeginBatchFetchWithContext:_batchContext]; // Weakify
     });
   } else if (_asyncDelegateFlags.collectionViewWillBeginBatchFetch) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [_asyncDelegate collectionView:self willBeginBatchFetchWithContext:_batchContext];
+      [self->_asyncDelegate collectionView:self willBeginBatchFetchWithContext:self->_batchContext]; // Weakify
 #pragma clang diagnostic pop
     });
   }
@@ -2121,20 +2121,20 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
   ASPerformBlockWithoutAnimation(!changeSet.animated, ^{
     as_activity_scope(as_activity_create("Commit collection update", changeSet.rootActivity, OS_ACTIVITY_FLAG_DEFAULT));
     if (changeSet.includesReloadData) {
-      _superIsPendingDataLoad = YES;
+      self->_superIsPendingDataLoad = YES; // Weakify
       updates();
       [super reloadData];
       as_log_debug(ASCollectionLog(), "Did reloadData %@", self.collectionNode);
       [changeSet executeCompletionHandlerWithFinished:YES];
     } else {
-      [_layoutFacilitator collectionViewWillPerformBatchUpdates];
+      [self->_layoutFacilitator collectionViewWillPerformBatchUpdates]; // Weakify
       
       __block NSUInteger numberOfUpdates = 0;
       id completion = ^(BOOL finished){
         as_activity_scope(as_activity_create("Handle collection update completion", changeSet.rootActivity, OS_ACTIVITY_FLAG_DEFAULT));
         as_log_verbose(ASCollectionLog(), "Update animation finished %{public}@", self.collectionNode);
         // Flush any range changes that happened as part of the update animations ending.
-        [_rangeController updateIfNeeded];
+        [self->_rangeController updateIfNeeded]; // Weakify
         [self _scheduleCheckForBatchFetchingForNumberOfChanges:numberOfUpdates];
         [changeSet executeCompletionHandlerWithFinished:finished];
       };
@@ -2177,7 +2177,7 @@ static NSString * const kReuseIdentifier = @"_ASCollectionReuseIdentifier";
       
       // Flush any range changes that happened as part of submitting the update.
       as_activity_scope(changeSet.rootActivity);
-      [_rangeController updateIfNeeded];
+      [self->_rangeController updateIfNeeded]; // Weakify
     }
   });
 }

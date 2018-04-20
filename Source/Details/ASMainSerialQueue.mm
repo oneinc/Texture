@@ -60,16 +60,16 @@
 {
   dispatch_block_t mainThread = ^{
     do {
-      ASDN::MutexLocker l(_serialQueueLock);
+      ASDN::MutexLocker l(self->_serialQueueLock); // Weakify
       dispatch_block_t block;
-      if (_blocks.count > 0) {
-        block = _blocks[0];
-        [_blocks removeObjectAtIndex:0];
+      if (self->_blocks.count > 0) { // Weakify
+        block = self->_blocks[0]; // Weakify
+        [self->_blocks removeObjectAtIndex:0]; // Weakify
       } else {
         break;
       }
       {
-        ASDN::MutexUnlocker u(_serialQueueLock);
+        ASDN::MutexUnlocker u(self->_serialQueueLock); // Weakify
         block();
       }
     } while (true);

@@ -1758,17 +1758,17 @@ void recursivelyTriggerDisplayForLayer(CALayer *layer, BOOL shouldBlock)
     ASDisplayNodeAssertMainThread();
     if (visible) {
       for (int idx = 0; idx < 4; idx++) {
-        if (_clipCornerLayers[idx] == nil) {
-          _clipCornerLayers[idx] = [[CALayer alloc] init];
-          _clipCornerLayers[idx].zPosition = 99999;
-          _clipCornerLayers[idx].delegate = self;
+        if (self->_clipCornerLayers[idx] == nil) {
+          self->_clipCornerLayers[idx] = [[CALayer alloc] init]; // Weakify
+          self->_clipCornerLayers[idx].zPosition = 99999; // Weakify
+          self->_clipCornerLayers[idx].delegate = self; // Weakify
         }
       }
-      [self _updateClipCornerLayerContentsWithRadius:_cornerRadius backgroundColor:self.backgroundColor];
+      [self _updateClipCornerLayerContentsWithRadius:self->_cornerRadius backgroundColor:self.backgroundColor]; // Weakify
     } else {
       for (int idx = 0; idx < 4; idx++) {
-        [_clipCornerLayers[idx] removeFromSuperlayer];
-        _clipCornerLayers[idx] = nil;
+        [self->_clipCornerLayers[idx] removeFromSuperlayer]; // Weakify
+        self->_clipCornerLayers[idx] = nil; // Weakify
       }
     }
   });

@@ -435,10 +435,10 @@ static BOOL __shouldShowRangeDebugOverlay = NO;
   }
   
   [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
-    _animating = YES;
+    self->_animating = YES; // Weakify
     [self layoutToFitAllBarsExcept:0];
   } completion:^(BOOL finished) {
-    _animating = NO;
+    self->_animating = NO; // Weakify
   }];
 }
 
@@ -664,15 +664,15 @@ static BOOL __shouldShowRangeDebugOverlay = NO;
   
   BOOL animate = !_firstLayoutOfRects;
   [UIView animateWithDuration:animate ? 0.3 : 0.0 delay:0.0 options:UIViewAnimationOptionLayoutSubviews animations:^{
-    _visibleRect.frame    = CGRectMake(HORIZONTAL_INSET + visiblePoint,    rect.origin.y, visibleDimension,    subCellHeight);
-    _displayRect.frame    = CGRectMake(HORIZONTAL_INSET + displayPoint,    rect.origin.y, displayDimension,    subCellHeight);
-    _preloadRect.frame    = CGRectMake(HORIZONTAL_INSET + preloadPoint,  rect.origin.y, preloadDimension,  subCellHeight);
+    self->_visibleRect.frame    = CGRectMake(HORIZONTAL_INSET + visiblePoint,    rect.origin.y, visibleDimension,    subCellHeight); // Weakify
+    self->_displayRect.frame    = CGRectMake(HORIZONTAL_INSET + displayPoint,    rect.origin.y, displayDimension,    subCellHeight); // Weakify
+    self->_preloadRect.frame    = CGRectMake(HORIZONTAL_INSET + preloadPoint,  rect.origin.y, preloadDimension,  subCellHeight); // Weakify
   } completion:^(BOOL finished) {}];
   
   if (!animate) {
     _visibleRect.alpha = _displayRect.alpha = _preloadRect.alpha = 0;
     [UIView animateWithDuration:0.3 animations:^{
-      _visibleRect.alpha = _displayRect.alpha = _preloadRect.alpha = 1;
+      self->_visibleRect.alpha = self->_displayRect.alpha = self->_preloadRect.alpha = 1; // Weakify
     }];
   }
   

@@ -549,8 +549,8 @@ static int const kASASCATransactionQueuePostOrder = 3000000;
       [weakSelf processQueue];
     };
     void (^postHandlerBlock) (CFRunLoopObserverRef observer, CFRunLoopActivity activity) = ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) {
-      ASDN::MutexLocker l(_internalQueueLock);
-      _CATransactionCommitInProgress = NO;
+      ASDN::MutexLocker l(self->_internalQueueLock);
+      self->_CATransactionCommitInProgress = NO;
     };
     _preTransactionObserver = CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopBeforeWaiting, true, kASASCATransactionQueueOrder, handlerBlock);
     _postTransactionObserver = CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopBeforeWaiting, true, kASASCATransactionQueuePostOrder, postHandlerBlock);

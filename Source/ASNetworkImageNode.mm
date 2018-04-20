@@ -551,11 +551,11 @@
     // it and try again.
     {
       ASLockScopeSelf();
-      url = _URL;
+      url = self->_URL; // Weakify
     }
 
 
-    downloadIdentifier = [_downloader downloadImageWithURL:url
+    downloadIdentifier = [self->_downloader downloadImageWithURL:url // Weakify
                                              callbackQueue:dispatch_get_main_queue()
                                           downloadProgress:NULL
                                                 completion:^(id <ASImageContainerProtocol> _Nullable imageContainer, NSError * _Nullable error, id  _Nullable downloadIdentifier, id _Nullable userInfo) {
@@ -567,9 +567,9 @@
   
     {
       ASLockScopeSelf();
-      if (ASObjectIsEqual(_URL, url)) {
+      if (ASObjectIsEqual(self->_URL, url)) { // Weakify
         // The download we kicked off is correct, no need to do any more work.
-        _downloadIdentifier = downloadIdentifier;
+        self->_downloadIdentifier = downloadIdentifier; // Weakify
       } else {
         // The URL changed since we kicked off our download task. This shouldn't happen often so we'll pay the cost and
         // cancel that request and kick off a new one.
@@ -580,7 +580,7 @@
     if (cancelAndReattempt) {
       if (downloadIdentifier != nil) {
         as_log_verbose(ASImageLoadingLog(), "Canceling image download no resume for %@ id: %@", self, downloadIdentifier);
-        [_downloader cancelImageDownloadForIdentifier:downloadIdentifier];
+        [self->_downloader cancelImageDownloadForIdentifier:downloadIdentifier]; // Weakify
       }
       [self _downloadImageWithCompletion:finished];
       return;
@@ -610,11 +610,11 @@
         ASLockScopeSelf();
         
         // Bail out if not the same URL anymore
-        if (!ASObjectIsEqual(URL, _URL)) {
+        if (!ASObjectIsEqual(URL, self->_URL)) { // Weakify
           return;
         }
         
-        if (_shouldCacheImage) {
+        if (self->_shouldCacheImage) { // Weakify
           [self _locked__setImage:[UIImage imageNamed:URL.path.lastPathComponent]];
         } else {
           // First try to load the path directly, for efficiency assuming a developer who
@@ -631,10 +631,10 @@
 
           // If the file may be an animated gif and then created an animated image.
           id<ASAnimatedImageProtocol> animatedImage = nil;
-          if (_downloaderFlags.downloaderImplementsAnimatedImage) {
+          if (self->_downloaderFlags.downloaderImplementsAnimatedImage) { // Weakify
             NSData *data = [NSData dataWithContentsOfURL:URL];
             if (data != nil) {
-              animatedImage = [_downloader animatedImageWithData:data];
+              animatedImage = [self->_downloader animatedImageWithData:data]; // Weakify
 
               if ([animatedImage respondsToSelector:@selector(isDataSupported:)] && [animatedImage isDataSupported:data] == NO) {
                 animatedImage = nil;
@@ -649,15 +649,15 @@
           }
         }
 
-        _imageLoaded = YES;
+        self->_imageLoaded = YES; // Weakify
 
         [self _setCurrentImageQuality:1.0];
 
-        if (_delegateFlags.delegateDidLoadImageWithInfo) {
+        if (self->_delegateFlags.delegateDidLoadImageWithInfo) { // Weakify
           ASUnlockScope(self);
           auto info = [[ASNetworkImageLoadInfo alloc] initWithURL:URL sourceType:ASNetworkImageSourceFileURL downloadIdentifier:nil userInfo:nil];
           [delegate imageNode:self didLoadImage:self.image info:info];
-        } else if (_delegateFlags.delegateDidLoadImage) {
+        } else if (self->_delegateFlags.delegateDidLoadImage) { // Weakify
           ASUnlockScope(self);
           [delegate imageNode:self didLoadImage:self.image];
         }
@@ -708,17 +708,17 @@
           void (^calloutBlock)(ASNetworkImageNode *inst);
           
           if (newImage) {
-            if (_delegateFlags.delegateDidLoadImageWithInfo) {
+            if (self->_delegateFlags.delegateDidLoadImageWithInfo) { // Weakify
               calloutBlock = ^(ASNetworkImageNode *strongSelf) {
                 auto info = [[ASNetworkImageLoadInfo alloc] initWithURL:URL sourceType:imageSource downloadIdentifier:downloadIdentifier userInfo:userInfo];
                 [delegate imageNode:strongSelf didLoadImage:newImage info:info];
               };
-            } else if (_delegateFlags.delegateDidLoadImage) {
+            } else if (self->_delegateFlags.delegateDidLoadImage) { // Weakify
               calloutBlock = ^(ASNetworkImageNode *strongSelf) {
                 [delegate imageNode:strongSelf didLoadImage:newImage];
               };
             }
-          } else if (error && _delegateFlags.delegateDidFailWithError) {
+          } else if (error && self->_delegateFlags.delegateDidFailWithError) { // Weakify
             calloutBlock = ^(ASNetworkImageNode *strongSelf) {
               [delegate imageNode:strongSelf didFailWithError:error];
             };
@@ -743,11 +743,11 @@
         
         ASImageCacherCompletion completion = ^(id <ASImageContainerProtocol> imageContainer) {
           // If the cache sentinel changed, that means this request was cancelled.
-          if (ASLockedSelf(_cacheSentinel != cacheSentinel)) {
+          if (ASLockedSelf(self->_cacheSentinel != cacheSentinel)) { // Weakify
             return;
           }
           
-          if ([imageContainer asdk_image] == nil && _downloader != nil) {
+          if ([imageContainer asdk_image] == nil && self->_downloader != nil) { // Weakify
             [self _downloadImageWithCompletion:^(id<ASImageContainerProtocol> imageContainer, NSError *error, id downloadIdentifier, id userInfo) {
               finished(imageContainer, error, downloadIdentifier, ASNetworkImageSourceDownload, userInfo);
             }];

@@ -183,11 +183,11 @@
   [super didLoad];
 
   void (^configureTextView)(UITextView *) = ^(UITextView *textView) {
-    if (!_displayingPlaceholder || textView != _textKitComponents.textView) {
+    if (!self->_displayingPlaceholder || textView != self->_textKitComponents.textView) { // Weakify
       // If showing the placeholder, don't propagate backgroundColor/opaque to the editable textView.  It is positioned over the placeholder to accept taps to begin editing, and if it's opaque/colored then it'll obscure the placeholder.
       textView.backgroundColor = self.backgroundColor;
       textView.opaque = self.opaque;
-    } else if (_displayingPlaceholder && textView == _textKitComponents.textView) {
+    } else if (self->_displayingPlaceholder && textView == self->_textKitComponents.textView) { // Weakify
       // The default backgroundColor for a textView is white.  Due to the reason described above, make sure the editable textView starts out transparent.
       textView.backgroundColor = nil;
       textView.opaque = NO;
@@ -196,16 +196,16 @@
     
     // Configure textView with UITextInputTraits
     {
-      ASDN::MutexLocker l(_textInputTraitsLock);
-      if (_textInputTraits) {
-        textView.autocapitalizationType         = _textInputTraits.autocapitalizationType;
-        textView.autocorrectionType             = _textInputTraits.autocorrectionType;
-        textView.spellCheckingType              = _textInputTraits.spellCheckingType;
-        textView.keyboardType                   = _textInputTraits.keyboardType;
-        textView.keyboardAppearance             = _textInputTraits.keyboardAppearance;
-        textView.returnKeyType                  = _textInputTraits.returnKeyType;
-        textView.enablesReturnKeyAutomatically  = _textInputTraits.enablesReturnKeyAutomatically;
-        textView.secureTextEntry                = _textInputTraits.isSecureTextEntry;
+      ASDN::MutexLocker l(self->_textInputTraitsLock); // Weakify
+      if (self->_textInputTraits) { // Weakify
+        textView.autocapitalizationType         = self->_textInputTraits.autocapitalizationType; // Weakify
+        textView.autocorrectionType             = self->_textInputTraits.autocorrectionType; // Weakify
+        textView.spellCheckingType              = self->_textInputTraits.spellCheckingType; // Weakify
+        textView.keyboardType                   = self->_textInputTraits.keyboardType; // Weakify
+        textView.keyboardAppearance             = self->_textInputTraits.keyboardAppearance; // Weakify
+        textView.returnKeyType                  = self->_textInputTraits.returnKeyType; // Weakify
+        textView.enablesReturnKeyAutomatically  = self->_textInputTraits.enablesReturnKeyAutomatically; // Weakify
+        textView.secureTextEntry                = self->_textInputTraits.isSecureTextEntry; // Weakify
       }
     }
     
@@ -822,8 +822,8 @@
   // 2. This delegate method (-textViewDidChangeSelection:) is called both before -textViewDidChange: and before the layout manager/etc. has necessarily generated+laid out its glyphs. Because of the former, we need to wait until -textViewDidChange: has had an opportunity to be called so can accurately determine whether this selection change is due to editing (_selectionChangedForEditedText).
   // Thus, to avoid calling out to client code in the middle of UITextView's processing, we call the delegate on the next run of the runloop, when all such internal processing is surely done.
   dispatch_async(dispatch_get_main_queue(), ^{
-    if ([_delegate respondsToSelector:@selector(editableTextNodeDidChangeSelection:fromSelectedRange:toSelectedRange:dueToEditing:)])
-      [_delegate editableTextNodeDidChangeSelection:self fromSelectedRange:fromSelectedRange toSelectedRange:toSelectedRange dueToEditing:_selectionChangedForEditedText];
+    if ([self->_delegate respondsToSelector:@selector(editableTextNodeDidChangeSelection:fromSelectedRange:toSelectedRange:dueToEditing:)]) // Weakify
+      [self->_delegate editableTextNodeDidChangeSelection:self fromSelectedRange:fromSelectedRange toSelectedRange:toSelectedRange dueToEditing:self->_selectionChangedForEditedText]; // Weakify
   });
 }
 
@@ -838,9 +838,9 @@
   // UITextView invokes its delegate methods when it's in the middle of text-processing. For example, -textViewDidChange: is invoked before you can truly rely on the changes being propagated throughout the Text Kit hierarchy.
   // Thus, to avoid calling out to client code in the middle of UITextView's processing, we call the delegate on the next run of the runloop, when all such internal processing is surely done.
   dispatch_async(dispatch_get_main_queue(), ^{
-    _delegateDidUpdateEnqueued = NO;
-    if ([_delegate respondsToSelector:@selector(editableTextNodeDidUpdateText:)])
-      [_delegate editableTextNodeDidUpdateText:self];
+    self->_delegateDidUpdateEnqueued = NO; // Weakify
+    if ([self->_delegate respondsToSelector:@selector(editableTextNodeDidUpdateText:)]) // Weakify
+      [self->_delegate editableTextNodeDidUpdateText:self]; // Weakify
   });
 }
 

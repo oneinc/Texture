@@ -154,12 +154,14 @@ static std::atomic_bool static_retainsSublayoutLayoutElements = ATOMIC_VAR_INIT(
   
   return self;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wavailability"
 - (instancetype)init
 {
   ASDisplayNodeAssert(NO, @"Use the designated initializer");
   return [self init];
 }
+#pragma clang diagnostic pop
 
 #pragma mark - Class Constructors
 

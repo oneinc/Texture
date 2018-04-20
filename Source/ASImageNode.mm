@@ -263,9 +263,9 @@ typedef void (^ASImageNodeDrawParametersBlock)(ASWeakMapEntry *entry);
     // For debugging purposes we don't care about locking for now
     if ([ASImageNode shouldShowImageScalingOverlay] && _debugLabelNode == nil) {
       ASPerformBlockOnMainThread(^{
-        _debugLabelNode = [[ASTextNode alloc] init];
-        _debugLabelNode.layerBacked = YES;
-        [self addSubnode:_debugLabelNode];
+        self->_debugLabelNode = [[ASTextNode alloc] init]; // Weakify
+        self->_debugLabelNode.layerBacked = YES; // Weakify
+        [self addSubnode:self->_debugLabelNode]; // Weakify
       });
     }
   } else {
@@ -327,7 +327,7 @@ typedef void (^ASImageNodeDrawParametersBlock)(ASWeakMapEntry *entry);
   // Hack for now to retain the weak entry that was created while this drawing happened
   drawParameters->_didDrawBlock = ^(ASWeakMapEntry *entry){
     ASLockScopeSelf();
-    _weakCacheEntry = entry;
+    self->_weakCacheEntry = entry; // Weakify
   };
   
   return drawParameters;

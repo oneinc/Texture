@@ -327,12 +327,12 @@ static NSArray *DefaultLinkAttributeNames = @[ NSLinkAttributeName ];
  
   // Apply paragraph style if needed
   [attributedString enumerateAttribute:NSParagraphStyleAttributeName inRange:NSMakeRange(0, attributedString.length) options:kNilOptions usingBlock:^(NSParagraphStyle *style, NSRange range, BOOL * _Nonnull stop) {
-    if (style == nil || style.lineBreakMode == _truncationMode) {
+    if (style == nil || style.lineBreakMode == self->_truncationMode) { // Weakify
       return;
     }
     
     NSMutableParagraphStyle *paragraphStyle = [style mutableCopy] ?: [[NSMutableParagraphStyle alloc] init];
-    paragraphStyle.lineBreakMode = _truncationMode;
+    paragraphStyle.lineBreakMode = self->_truncationMode; // Weakify
     [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:range];
   }];
   

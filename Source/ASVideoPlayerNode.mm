@@ -410,19 +410,19 @@ static void *ASVideoPlayerNodeContext = &ASVideoPlayerNodeContext;
       slider.minimumValue = 0.0;
       slider.maximumValue = 1.0;
 
-      if (_delegateFlags.delegateScrubberMinimumTrackTintColor) {
+      if (self->_delegateFlags.delegateScrubberMinimumTrackTintColor) { // Weakify
         slider.minimumTrackTintColor  = [strongSelf.delegate videoPlayerNodeScrubberMinimumTrackTint:strongSelf];
       }
 
-      if (_delegateFlags.delegateScrubberMaximumTrackTintColor) {
+      if (self->_delegateFlags.delegateScrubberMaximumTrackTintColor) { // Weakify
         slider.maximumTrackTintColor  = [strongSelf.delegate videoPlayerNodeScrubberMaximumTrackTint:strongSelf];
       }
 
-      if (_delegateFlags.delegateScrubberThumbTintColor) {
+      if (self->_delegateFlags.delegateScrubberThumbTintColor) { // Weakify
         slider.thumbTintColor  = [strongSelf.delegate videoPlayerNodeScrubberThumbTint:strongSelf];
       }
 
-      if (_delegateFlags.delegateScrubberThumbImage) {
+      if (self->_delegateFlags.delegateScrubberThumbImage) { // Weakify
         UIImage *thumbImage = [strongSelf.delegate videoPlayerNodeScrubberThumbImage:strongSelf];
         [slider setThumbImage:thumbImage forState:UIControlStateNormal];
       }
@@ -617,14 +617,14 @@ static void *ASVideoPlayerNodeContext = &ASVideoPlayerNodeContext;
       UIActivityIndicatorView *spinnnerView = [[UIActivityIndicatorView alloc] init];
       spinnnerView.backgroundColor = [UIColor clearColor];
 
-      if (_delegateFlags.delegateSpinnerTintColor) {
-        spinnnerView.color = [_delegate videoPlayerNodeSpinnerTint:strongSelf];
+      if (strongSelf->_delegateFlags.delegateSpinnerTintColor) {
+        spinnnerView.color = [strongSelf->_delegate videoPlayerNodeSpinnerTint:strongSelf];
       } else {
-        spinnnerView.color = _defaultControlsColor;
+        spinnnerView.color = strongSelf->_defaultControlsColor;
       }
       
-      if (_delegateFlags.delegateSpinnerStyle) {
-        spinnnerView.activityIndicatorViewStyle = [_delegate videoPlayerNodeSpinnerStyle:strongSelf];
+      if (strongSelf->_delegateFlags.delegateSpinnerStyle) {
+        spinnnerView.activityIndicatorViewStyle = [strongSelf->_delegate videoPlayerNodeSpinnerStyle:strongSelf];
       }
       
       return spinnnerView;

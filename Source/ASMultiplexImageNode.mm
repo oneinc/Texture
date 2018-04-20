@@ -734,7 +734,7 @@ typedef void(^ASMultiplexImageLoadCompletionBlock)(UIImage *image, id imageIdent
     PHAsset *imageAsset = nil;
     
     // Try to get the asset immediately from the data source.
-    if (_dataSourceFlags.asset) {
+    if (self->_dataSourceFlags.asset) { // Weakify
       imageAsset = [strongSelf.dataSource multiplexImageNode:strongSelf assetForLocalIdentifier:request.assetIdentifier];
     }
     
@@ -830,7 +830,7 @@ typedef void(^ASMultiplexImageLoadCompletionBlock)(UIImage *image, id imageIdent
 
   // Download!
   ASPerformBlockOnBackgroundThread(^{
-    [self _setDownloadIdentifier:[_downloader downloadImageWithURL:imageURL
+    [self _setDownloadIdentifier:[self->_downloader downloadImageWithURL:imageURL // Weakify
                                                      callbackQueue:dispatch_get_main_queue()
                                                   downloadProgress:downloadProgressBlock
                                                         completion:^(id <ASImageContainerProtocol> imageContainer, NSError *error, id downloadIdentifier, id userInfo) {
@@ -839,9 +839,9 @@ typedef void(^ASMultiplexImageLoadCompletionBlock)(UIImage *image, id imageIdent
                                                           if (!strongSelf)
                                                             return;
                                                           
-                                                          ASDN::MutexLocker l(_downloadIdentifierLock);
+                                                          ASDN::MutexLocker l(self->_downloadIdentifierLock); // Weakify
                                                           //Getting a result back for a different download identifier, download must not have been successfully canceled
-                                                          if (ASObjectIsEqual(_downloadIdentifier, downloadIdentifier) == NO && downloadIdentifier != nil) {
+                                                          if (ASObjectIsEqual(self->_downloadIdentifier, downloadIdentifier) == NO && downloadIdentifier != nil) { // Weakify
                                                             return;
                                                           }
                                                           

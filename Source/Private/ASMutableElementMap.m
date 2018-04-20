@@ -82,7 +82,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<NSIndexPath *, ASCol
 - (void)insertEmptySectionsOfItemsAtIndexes:(NSIndexSet *)sections
 {
   [sections enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
-    [_sectionsOfItems insertObject:[NSMutableArray array] atIndex:idx];
+    [self->_sectionsOfItems insertObject:[NSMutableArray array] atIndex:idx]; // Weakify
   }];
 }
 

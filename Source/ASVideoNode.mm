@@ -306,7 +306,7 @@ static NSString * const kRate = @"rate";
 
     AVAssetImageGenerator *previewImageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
     previewImageGenerator.appliesPreferredTrackTransform = YES;
-    previewImageGenerator.videoComposition = _videoComposition;
+    previewImageGenerator.videoComposition = self->_videoComposition; // Weakify
 
     [previewImageGenerator generateCGImagesAsynchronouslyForTimes:@[[NSValue valueWithCMTime:imageTime]]
                                                 completionHandler:^(CMTime requestedTime, CGImageRef image, CMTime actualTime, AVAssetImageGeneratorResult result, NSError *error) {
@@ -413,7 +413,7 @@ static NSString * const kRate = @"rate";
   NSArray<NSString *> *requestedKeys = @[@"playable"];
   [asset loadValuesAsynchronouslyForKeys:requestedKeys completionHandler:^{
     ASPerformBlockOnMainThread(^{
-      if (_delegateFlags.delegateVideoNodeDidFinishInitialLoading) {
+      if (self->_delegateFlags.delegateVideoNodeDidFinishInitialLoading) { // Weakify
         [self.delegate videoNodeDidFinishInitialLoading:self];
       }
       [self prepareToPlayAsset:asset withKeys:requestedKeys];

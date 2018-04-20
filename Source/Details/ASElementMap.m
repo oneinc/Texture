@@ -68,7 +68,7 @@
     }
     for (NSDictionary *supplementariesForKind in [_supplementaryElements objectEnumerator]) {
       [supplementariesForKind enumerateKeysAndObjectsUsingBlock:^(NSIndexPath *_Nonnull indexPath, ASCollectionElement * _Nonnull element, BOOL * _Nonnull stop) {
-        [_elementToIndexPathMap setObject:indexPath forKey:element];
+        [self->_elementToIndexPathMap setObject:indexPath forKey:element]; // Weakify
       }];
     }
   }

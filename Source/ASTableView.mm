@@ -1459,13 +1459,13 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
   if (_asyncDelegateFlags.tableNodeWillBeginBatchFetch) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       GET_TABLENODE_OR_RETURN(tableNode, (void)0);
-      [_asyncDelegate tableNode:tableNode willBeginBatchFetchWithContext:_batchContext];
+      [self->_asyncDelegate tableNode:tableNode willBeginBatchFetchWithContext:self->_batchContext]; // Weakify
     });
   } else if (_asyncDelegateFlags.tableViewWillBeginBatchFetch) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [_asyncDelegate tableView:self willBeginBatchFetchWithContext:_batchContext];
+      [self->_asyncDelegate tableView:self willBeginBatchFetchWithContext:self->_batchContext]; // Weakify
 #pragma clang diagnostic pop
     });
   }
@@ -1518,7 +1518,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
       updates();
       [super reloadData];
       // Flush any range changes that happened as part of submitting the reload.
-      [_rangeController updateIfNeeded];
+      [self->_rangeController updateIfNeeded]; // Weakify
       [self _scheduleCheckForBatchFetchingForNumberOfChanges:1];
       [changeSet executeCompletionHandlerWithFinished:YES];
     });
@@ -1636,7 +1636,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
   LOG(@"--- UITableView endUpdates");
   ASPerformBlockWithoutAnimation(!changeSet.animated, ^{
     [super endUpdates];
-    [_rangeController updateIfNeeded];
+    [self->_rangeController updateIfNeeded]; // Weakify
     [self _scheduleCheckForBatchFetchingForNumberOfChanges:numberOfUpdates];
   });
   if (shouldAdjustContentOffset) {
@@ -1705,7 +1705,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
     if (node.interactionDelegate == nil) {
       node.interactionDelegate = strongSelf;
     }
-    if (_inverted) {
+    if (strongSelf->_inverted) {
         node.transform = CATransform3DMakeScale(1, -1, 1) ;
     }
     return node;

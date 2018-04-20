@@ -785,18 +785,18 @@ static UIColor *defaultTintColor = nil;
   accessibilityNavigationStyle = newAccessibilityNavigationStyle;
 }
 
-- (NSArray *)accessibilityHeaderElements
-{
-  return accessibilityHeaderElements;
-}
-
-- (void)setAccessibilityHeaderElements:(NSArray *)newAccessibilityHeaderElements
-{
-  _flags.setAccessibilityHeaderElements = YES;
-  if (accessibilityHeaderElements != newAccessibilityHeaderElements) {
-    accessibilityHeaderElements = [newAccessibilityHeaderElements copy];
-  }
-}
+//- (NSArray *)accessibilityHeaderElements
+//{
+//  return accessibilityHeaderElements;
+//}
+//
+//- (void)setAccessibilityHeaderElements:(NSArray *)newAccessibilityHeaderElements
+//{
+//  _flags.setAccessibilityHeaderElements = YES;
+//  if (accessibilityHeaderElements != newAccessibilityHeaderElements) {
+//    accessibilityHeaderElements = [newAccessibilityHeaderElements copy];
+//  }
+//}
 
 - (CGPoint)accessibilityActivationPoint
 {

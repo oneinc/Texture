@@ -507,13 +507,13 @@ typedef void (^ASDataControllerSynchronizationBlock)();
   _synchronized = NO;
 
   [changeSet addCompletionHandler:^(BOOL finished) {
-    _synchronized = YES;
+    self->_synchronized = YES; // Weakify
     [self onDidFinishProcessingUpdates:^{
-      if (_synchronized) {
-        for (ASDataControllerSynchronizationBlock block in _onDidFinishSynchronizingBlocks) {
+      if (self->_synchronized) { // Weakify
+        for (ASDataControllerSynchronizationBlock block in self->_onDidFinishSynchronizingBlocks) { // Weakify
           block();
         }
-        [_onDidFinishSynchronizingBlocks removeAllObjects];
+        [self->_onDidFinishSynchronizingBlocks removeAllObjects]; // Weakify
       }
     }];
   }];
@@ -612,10 +612,10 @@ typedef void (^ASDataControllerSynchronizationBlock)();
     as_activity_scope_enter(as_activity_create("Prepare nodes for collection update", AS_ACTIVITY_CURRENT, OS_ACTIVITY_FLAG_DEFAULT), &preparationScope);
 
     dispatch_block_t completion = ^() {
-      [_mainSerialQueue performBlockOnMainThread:^{
+      [self->_mainSerialQueue performBlockOnMainThread:^{ // Weakify
         as_activity_scope_leave(&preparationScope);
         // Step 4: Inform the delegate
-        [_delegate dataController:self updateWithChangeSet:changeSet updates:^{
+        [self->_delegate dataController:self updateWithChangeSet:changeSet updates:^{ // Weakify
           // Step 5: Deploy the new data as "completed"
           //
           // Note that since the backing collection view might be busy responding to user events (e.g scrolling),
@@ -626,7 +626,7 @@ typedef void (^ASDataControllerSynchronizationBlock)();
           self.visibleMap = newMap;
         }];
       }];
-      --_editingTransactionGroupCount;
+      --self->_editingTransactionGroupCount; // Weakify
     };
 
     // Step 3: Call the layout delegate if possible. Otherwise, allocate and layout all elements
@@ -686,12 +686,12 @@ typedef void (^ASDataControllerSynchronizationBlock)();
 
   [sectionIndexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
     id<ASSectionContext> context;
-    if (_dataSourceFlags.contextForSection) {
-      context = [_dataSource dataController:self contextForSection:idx];
+    if (self->_dataSourceFlags.contextForSection) { // Weakify
+      context = [self->_dataSource dataController:self contextForSection:idx]; // Weakify
     }
-    ASSection *section = [[ASSection alloc] initWithSectionID:_nextSectionID context:context];
+    ASSection *section = [[ASSection alloc] initWithSectionID:self->_nextSectionID context:context]; // Weakify
     [map insertSection:section atIndex:idx];
-    _nextSectionID++;
+    self->_nextSectionID++; // Weakify
   }];
 }
 
@@ -865,7 +865,7 @@ typedef void (^ASDataControllerSynchronizationBlock)();
 - (void)environmentDidChange
 {
   ASPerformBlockOnMainThread(^{
-    if (!_initialReloadDataHasBeenCalled) {
+    if (!self->_initialReloadDataHasBeenCalled) { // Weakify
       return;
     }
 
@@ -873,7 +873,7 @@ typedef void (^ASDataControllerSynchronizationBlock)();
     // i.e there might be some elements that were allocated using the old trait collection but haven't been added to _visibleMap
     [self _scheduleBlockOnMainSerialQueue:^{
       ASPrimitiveTraitCollection newTraitCollection = [self.node primitiveTraitCollection];
-      for (ASCollectionElement *element in _visibleMap) {
+      for (ASCollectionElement *element in self->_visibleMap) { // Weakify
         element.traitCollection = newTraitCollection;
       }
     }];

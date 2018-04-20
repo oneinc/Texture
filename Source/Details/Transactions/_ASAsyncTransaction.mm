@@ -384,10 +384,10 @@ ASAsyncTransactionQueue & ASAsyncTransactionQueue::instance()
   _group->schedule(priority, queue, ^{
     @autoreleasepool {
       if (self.state != ASAsyncTransactionStateCanceled) {
-        _group->enter();
+        self->_group->enter(); // Weakify
         block(^(id value){
           operation.value = value;
-          _group->leave();
+          self->_group->leave(); // Weakify
         });
       }
     }

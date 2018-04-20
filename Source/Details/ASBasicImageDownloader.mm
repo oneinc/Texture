@@ -259,7 +259,7 @@ static const char *kContextKey = NSStringFromClass(ASBasicImageDownloaderContext
     [context addCallbackData:[NSDictionary dictionaryWithDictionary:callbackData]];
 
     // Create new task if necessary
-    NSURLSessionDownloadTask *task = (NSURLSessionDownloadTask *)[context createSessionTaskIfNecessaryWithBlock:^(){return [_session downloadTaskWithURL:URL];}];
+    NSURLSessionDownloadTask *task = (NSURLSessionDownloadTask *)[context createSessionTaskIfNecessaryWithBlock:^(){return [self->_session downloadTaskWithURL:URL];}]; // Weakify
 
     if (task) {
       task.originalRequest.asyncdisplaykit_context = context;

@@ -346,14 +346,15 @@ ASVisibilityDepthImplementation;
   traitCollection.containerSize = self.view.bounds.size;
   [self propagateNewTraitCollection:traitCollection];
 }
-
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-  [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-  
-  ASPrimitiveTraitCollection traitCollection = _node.primitiveTraitCollection;
-  traitCollection.containerSize = self.view.bounds.size;
-  [self propagateNewTraitCollection:traitCollection];
-}
-
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wdeprecated"
+//- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+//{
+//  [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+//  
+//  ASPrimitiveTraitCollection traitCollection = _node.primitiveTraitCollection;
+//  traitCollection.containerSize = self.view.bounds.size;
+//  [self propagateNewTraitCollection:traitCollection];
+//}
+//#pragma clang diagnostic pop
 @end

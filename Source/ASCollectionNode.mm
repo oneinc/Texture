@@ -877,11 +877,13 @@
     [self.view waitUntilAllUpdatesAreCommitted];
   }
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 - (void)waitUntilAllUpdatesAreCommitted
 {
   [self waitUntilAllUpdatesAreProcessed];
 }
+#pragma clang diagnostic pop
 
 - (void)reloadDataWithCompletion:(void (^)())completion
 {
@@ -911,7 +913,8 @@
   	[self.view relayoutItems];
   }
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 - (void)beginUpdates
 {
   ASDisplayNodeAssertMainThread();
@@ -932,6 +935,7 @@
     [self.view endUpdatesAnimated:animated completion:completion];
   }
 }
+#pragma clang diagnostic pop
 
 - (void)invalidateFlowLayoutDelegateMetrics {
   ASDisplayNodeAssertMainThread();

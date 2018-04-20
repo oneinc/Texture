@@ -795,11 +795,13 @@ ASLayoutElementCollectionTableSetTraitCollection(_environmentStateLock)
     [self.view waitUntilAllUpdatesAreCommitted];
   }
 }
-
-- (void)waitUntilAllUpdatesAreCommitted
-{
-  [self waitUntilAllUpdatesAreProcessed];
-}
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wdeprecated"
+//- (void)waitUntilAllUpdatesAreCommitted
+//{
+//  [self waitUntilAllUpdatesAreProcessed];
+//}
+//#pragma clang diagnostic pop
 
 #pragma mark - Debugging (Private)
 
